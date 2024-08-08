@@ -1,6 +1,8 @@
 # Chat App
 
-This is a simple real-time chat application built using Flask, Socket.IO, HTML, CSS, and JavaScript.
+This app is a real-time chat platform that uses Socket.IO to enable instant messaging between users. When the page loads, each user connects to the server and receives a unique ID. Users can send messages by typing into an input field and pressing Enter or clicking a send button. Messages appear in a chat window, and the app automatically scrolls to display new messages unless the user has scrolled up.
+
+A notification banner alerts users to new messages when they’re not viewing the latest content, but it disappears if the user scrolls up or sends a message. This design ensures users are always aware of new interactions while also respecting their manual scroll position.
 
 ## Features
 
