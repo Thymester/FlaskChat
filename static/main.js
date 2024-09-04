@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const socket = io.connect('http://' + document.domain + ':' + location.port);
     let uid = null;
     let userScrolled = false;
-    let newMessageNotification = false; // Flag for new message notification
+    let newMessageNotification = false; // Flag new message notifications
 
     socket.on('connect', () => {
         uid = socket.id;
@@ -25,10 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     messagesDiv.addEventListener('scroll', () => {
-        // Update the userScrolled flag based on scroll position
+        // Update the userScrolled flag based on the position of the users scroll
         userScrolled = messagesDiv.scrollTop < messagesDiv.scrollHeight - messagesDiv.clientHeight - 10;
 
-        // Show/hide the notification banner based on the flag
+        // Show/hide notification banners based on the flag
         if (newMessageNotification && userScrolled) {
             notificationBanner.style.display = 'block';
         } else {
@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const message = messageInput.value;
         if (message.trim() !== '') {
             socket.emit('new_message', { message: message, uid: uid });
-            newMessageNotification = true; // Set flag when sending a message
-            notificationBanner.style.display = 'none'; // Hide banner after sending
+            newMessageNotification = true; // Set the flag when sending new messages
+            notificationBanner.style.display = 'none';
         }
         messageInput.value = '';
     }
@@ -52,12 +52,11 @@ document.addEventListener('DOMContentLoaded', () => {
         messageDiv.innerHTML = `<span class="uid">${data.uid}: </span>${data.message}`;
         messagesDiv.appendChild(messageDiv);
 
-        // Scroll to the last message only if user hasn't manually scrolled up
         if (!userScrolled) {
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        // Do not show notification if the message is from the sender or if the user has manually scrolled up
+        // Do not show notifications if the message is from the sender and or if the user has self scrolled
         if (data.uid === uid || userScrolled) {
             newMessageNotification = false;
             notificationBanner.style.display = 'none';
