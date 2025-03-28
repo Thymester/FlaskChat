@@ -6,14 +6,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check if there's already a saved UID in localStorage
     uid = localStorage.getItem('userUID');
+    console.log('Retrieved UID from localStorage:', uid); // Debug log
     
+    if (!uid) {
+        uid = socket.id;
+        localStorage.setItem('userUID', uid);  // Save the UID in localStorage for future sessions
+        console.log('Generated and saved UID:', uid); // Debug log
+    }
+    
+    // Display UID on the page
+    document.getElementById('user-uid').textContent = uid;
+
     socket.on('connect', () => {
         console.log("Connected to socket server!");  // Debug log
-        if (!uid) {
-            uid = socket.id;
-            localStorage.setItem('userUID', uid);  // Save the UID in localStorage for future sessions
-            document.getElementById('user-uid').textContent = uid;
-        }
     });
 
     const messagesDiv = document.getElementById('messages');
