@@ -47,16 +47,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function sendMessage() {
+function sendMessage() {
+    if (socket.connected) {
         const message = messageInput.value;
         if (message.trim() !== '') {
             console.log("Sending message: " + message);  // Debug log
             socket.emit('new_message', { message: message, uid: uid });
-            newMessageNotification = true; // Set the flag when sending new messages
+            newMessageNotification = true;
             notificationBanner.style.display = 'none';
         }
         messageInput.value = '';
+    } else {
+        console.log("Socket is not connected. Message not sent.");
     }
+}
+
 
     socket.on('message_received', data => {
         console.log("Received message: ", data);  // Debug log
