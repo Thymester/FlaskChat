@@ -1,52 +1,115 @@
-from flask import Flask, render_template
-from flask_socketio import SocketIO, emit
-from flask_cors import CORS  # To handle CORS
-import secrets  # Import the 'secrets' module for secure key generation
-import os  # To fetch the correct port in production
-import logging  # To enable better error logging
+document.addEventListener('DOMContentLoaded', () => {
+    const socket = io.connect('https://flaskchat-production.up.railway.app/', {  // Use wss:// for secure connection
+        transports: ['websocket', 'polling'], 
+        reconnection: true, 
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 5000,
+        autoConnect: true,
+        pingInterval: 25000,
+        pingTimeout: 5000,
+    });
 
-# Configure logging for debugging
-logging.basicConfig(level=logging.DEBUG)
+    // Log connection errors
+    socket.on('connect_error', (error) => {
+        console.error('Connection failed: ', error.message);
+    });
 
-app = Flask(__name__)
+    // Log reconnection attempts and successes
+    socket.on('reconnect_attempt', (attempt) => {
+        console.log(`Reconnecting attempt: ${attempt}`);
+    });
 
-# Generate a secure 256-bit secret key for session management
-app.config['SECRET_KEY'] = secrets.token_hex(32)
+    socket.on('reconnect', () => {
+        console.log('Reconnected to server');
+    });
 
-# Set CORS to only allow connections from known origins
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'https://flaskchat-production.up.railway.app/')  # Replace with actual domain
+    socket.on('disconnect', () => {
+        console.warn('Disconnected from server');
+    });
 
-# SocketIO setup with CORS support
-socketio = SocketIO(app, cors_allowed_origins=CORS_ALLOWED_ORIGINS, logger=True, engineio_logger=True)
+    let uid = null;
+    let userScrolled = false;
+    let newMessageNotification = false; // Flag for new message notifications
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+    // Check if there's already a saved UID in localStorage
+    uid = localStorage.getItem('userUID');
+    console.log('Retrieved UID from localStorage:', uid);  // Debug log
+    
+    if (!uid) {
+        uid = socket.id;
+        localStorage.setItem('userUID', uid);  // Save the UID in localStorage for future sessions
+        console.log('Generated and saved UID:', uid); // Debug log
+    }
+    
+    // Display UID on the page
+    document.getElementById('user-uid').textContent = uid;
 
-# Handle incoming WebSocket messages
-@socketio.on('new_message')
-def handle_new_message(data):
-    message = data['message']
-    uid = data['uid']
-    logging.debug(f"Received message: {message} from UID: {uid}")
-    emit('message_received', {'message': message, 'uid': uid}, broadcast=True)
+    socket.on('connect', () => {
+        console.log("Connected to socket server!");  // Debug log
+    });
 
-# Handle new socket connections
-@socketio.on('connect')
-def handle_connect():
-    logging.debug('Client connected')
-    emit('connected', {'status': 'Connected successfully'})
+    const messagesDiv = document.getElementById('messages');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const notificationBanner = document.getElementById('notification-banner');
 
-# Handle socket disconnections
-@socketio.on('disconnect')
-def handle_disconnect():
-    logging.debug('Client disconnected')
+    sendButton.onclick = sendMessage;
 
-# Run the Flask app with SocketIO support in production-ready mode
-if __name__ == "__main__":
-    # Ensure the correct port is used
-    port = int(os.environ.get('PORT', 5000))  # Use environment variable PORT or fallback to 5000
-    host = '0.0.0.0'  # Listen on all available IP addresses
+    messageInput.addEventListener('keydown', event => {
+        if (event.keyCode === 13) {
+            sendMessage();
+            event.preventDefault();
+        }
+    });
 
-    logging.info(f"Running Flask app on {host}:{port} with WebSocket support")
-    socketio.run(app, host=host, port=port, debug=True, use_reloader=False)  # Run the app with WebSocket support
+    messagesDiv.addEventListener('scroll', () => {
+        // Update the userScrolled flag based on the position of the user's scroll
+        userScrolled = messagesDiv.scrollTop < messagesDiv.scrollHeight - messagesDiv.clientHeight - 10;
+
+        // Show/hide notification banners based on the flag
+        if (newMessageNotification && userScrolled) {
+            notificationBanner.style.display = 'block';
+        } else {
+            notificationBanner.style.display = 'none';
+        }
+    });
+
+    function sendMessage() {
+        if (socket.connected) {
+            const message = messageInput.value;
+            if (message.trim() !== '') {
+                console.log("Sending message: " + message);  // Debug log
+                socket.emit('new_message', { message: message, uid: uid });
+                newMessageNotification = true;
+                notificationBanner.style.display = 'none';
+            }
+            messageInput.value = '';
+        } else {
+            console.log("Socket is not connected. Message not sent.");
+        }
+    }
+
+    socket.on('message_received', data => {
+        console.log("Received message: ", data);  // Debug log
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message-div');
+        messageDiv.innerHTML = `<span class="uid">${data.uid}: </span>${data.message}`;
+        messagesDiv.appendChild(messageDiv);
+
+        if (!userScrolled) {
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Do not show notifications if the message is from the sender or if the user has self-scrolled
+        if (data.uid === uid || userScrolled) {
+            newMessageNotification = false;
+            notificationBanner.style.display = 'none';
+        }
+
+        // Show notification banner for the recipient
+        if (data.uid !== uid && userScrolled) {
+            notificationBanner.style.display = 'block';
+        }
+    });
+});
