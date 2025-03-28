@@ -1,9 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io.connect('https://flaskchat-production.up.railway.app/', {
-    reconnectionDelayMax: 10000,  // Maximum delay between reconnections (10 seconds)
-    reconnectionAttempts: 5,       // Max number of reconnection attempts
-    transports: ['websocket']
-});
+        transports: ['websocket'],  // Force WebSocket transport only
+        reconnection: true,         // Enable automatic reconnection
+        reconnectionAttempts: 5,    // Number of reconnection attempts before giving up
+        reconnectionDelay: 1000,    // Time in milliseconds between reconnection attempts
+        reconnectionDelayMax: 5000, // Maximum delay between reconnection attempts
+        timeout: 5000,              // Connection timeout (5 seconds)
+        autoConnect: true,          // Automatically attempts to connect immediately
+        pingInterval: 25000,        // Time between pings to keep the connection alive
+        pingTimeout: 5000,          // Timeout for ping (5 seconds)
+        transports: ['websocket', 'polling'],  // Allow polling as fallback if WebSocket is unavailable
+    });
     let uid = null;
     let userScrolled = false;
     let newMessageNotification = false; // Flag new message notifications
