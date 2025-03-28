@@ -16,6 +16,7 @@ app.config['SECRET_KEY'] = secrets.token_hex(32)
 # Set CORS to only allow connections from known origins
 CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'https://flaskchat-production.up.railway.app/')  # Replace with actual domain
 
+# SocketIO setup with CORS support
 socketio = SocketIO(app, cors_allowed_origins=CORS_ALLOWED_ORIGINS, logger=True, engineio_logger=True)
 
 @app.route('/')
