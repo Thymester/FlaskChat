@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const socket = io.connect('https://flaskchat-production.up.railway.app/', {
+    const socket = io.connect('wss://flaskchat-production.up.railway.app', {  // Use wss:// for secure connection
         transports: ['websocket', 'polling'], 
         reconnection: true, 
         reconnectionAttempts: 5,
@@ -27,13 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('disconnect', () => {
         console.warn('Disconnected from server');
     });
+    
     let uid = null;
     let userScrolled = false;
-    let newMessageNotification = false; // Flag new message notifications
+    let newMessageNotification = false; // Flag for new message notifications
 
     // Check if there's already a saved UID in localStorage
     uid = localStorage.getItem('userUID');
-    console.log('Retrieved UID from localStorage:', uid); // Debug log
+    console.log('Retrieved UID from localStorage:', uid);  // Debug log
     
     if (!uid) {
         uid = socket.id;
@@ -74,21 +75,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-function sendMessage() {
-    if (socket.connected) {
-        const message = messageInput.value;
-        if (message.trim() !== '') {
-            console.log("Sending message: " + message);  // Debug log
-            socket.emit('new_message', { message: message, uid: uid });
-            newMessageNotification = true;
-            notificationBanner.style.display = 'none';
+    function sendMessage() {
+        if (socket.connected) {
+            const message = messageInput.value;
+            if (message.trim() !== '') {
+                console.log("Sending message: " + message);  // Debug log
+                socket.emit('new_message', { message: message, uid: uid });
+                newMessageNotification = true;
+                notificationBanner.style.display = 'none';
+            }
+            messageInput.value = '';
+        } else {
+            console.log("Socket is not connected. Message not sent.");
         }
-        messageInput.value = '';
-    } else {
-        console.log("Socket is not connected. Message not sent.");
     }
-}
-
 
     socket.on('message_received', data => {
         console.log("Received message: ", data);  // Debug log
