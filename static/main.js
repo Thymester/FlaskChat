@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const socket = io.connect('wss://flaskchat-production.up.railway.app', {  // Use wss:// for secure connection
+    const socket = io.connect('https://flaskchat-production.up.railway.app/', {  // Use wss:// for secure connection
         transports: ['websocket', 'polling'], 
         reconnection: true, 
         reconnectionAttempts: 5,
