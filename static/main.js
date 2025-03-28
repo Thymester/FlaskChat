@@ -1,6 +1,6 @@
 // static/main.js
 document.addEventListener('DOMContentLoaded', () => {
-    const socket = io.connect('http://' + document.domain + ':' + location.port);
+    const socket = io.connect('https://flaskchat-production.up.railway.app/');
     let uid = null;
     let userScrolled = false;
     let newMessageNotification = false; // Flag new message notifications
