@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const socket = io.connect('https://flaskchat-production.up.railway.app/');
+    const socket = io.connect('https://flaskchat-production.up.railway.app/', {
+    reconnectionDelayMax: 10000,  // Maximum delay between reconnections (10 seconds)
+    reconnectionAttempts: 5,       // Max number of reconnection attempts
+    transports: ['websocket']
+});
     let uid = null;
     let userScrolled = false;
     let newMessageNotification = false; // Flag new message notifications
