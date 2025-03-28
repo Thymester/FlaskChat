@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
+from flask_cors import CORS  # To handle CORS
 import secrets  # Import the 'secrets' module for secure key generation
 import os  # To fetch the correct port in production
 import logging  # To enable better error logging
@@ -13,8 +14,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(32)
 
 # Set CORS to only allow connections from known origins
-# It's better to restrict CORS to your front-end domain for production
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '*')  # Default to '*' for testing
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'https://yourfrontenddomain.com')  # Replace with actual domain
 
 socketio = SocketIO(app, cors_allowed_origins=CORS_ALLOWED_ORIGINS, logger=True, engineio_logger=True)
 
