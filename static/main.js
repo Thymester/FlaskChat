@@ -1,13 +1,19 @@
-// static/main.js
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io.connect('https://flaskchat-production.up.railway.app/');
     let uid = null;
     let userScrolled = false;
     let newMessageNotification = false; // Flag new message notifications
 
+    // Check if there's already a saved UID in localStorage
+    uid = localStorage.getItem('userUID');
+    
     socket.on('connect', () => {
-        uid = socket.id;
-        document.getElementById('user-uid').textContent = uid;
+        console.log("Connected to socket server!");  // Debug log
+        if (!uid) {
+            uid = socket.id;
+            localStorage.setItem('userUID', uid);  // Save the UID in localStorage for future sessions
+            document.getElementById('user-uid').textContent = uid;
+        }
     });
 
     const messagesDiv = document.getElementById('messages');
@@ -25,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     messagesDiv.addEventListener('scroll', () => {
-        // Update the userScrolled flag based on the position of the users scroll
+        // Update the userScrolled flag based on the position of the user's scroll
         userScrolled = messagesDiv.scrollTop < messagesDiv.scrollHeight - messagesDiv.clientHeight - 10;
 
         // Show/hide notification banners based on the flag
@@ -39,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function sendMessage() {
         const message = messageInput.value;
         if (message.trim() !== '') {
+            console.log("Sending message: " + message);  // Debug log
             socket.emit('new_message', { message: message, uid: uid });
             newMessageNotification = true; // Set the flag when sending new messages
             notificationBanner.style.display = 'none';
@@ -47,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     socket.on('message_received', data => {
+        console.log("Received message: ", data);  // Debug log
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message-div');
         messageDiv.innerHTML = `<span class="uid">${data.uid}: </span>${data.message}`;
@@ -56,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        // Do not show notifications if the message is from the sender and or if the user has self scrolled
+        // Do not show notifications if the message is from the sender or if the user has self-scrolled
         if (data.uid === uid || userScrolled) {
             newMessageNotification = false;
             notificationBanner.style.display = 'none';
