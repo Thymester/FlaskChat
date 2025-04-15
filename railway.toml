@@ -2,7 +2,7 @@
   install = "pip install -r src/requirements.txt"
 
 [deploy]
-  start = "gunicorn src.app:app --worker-class eventlet -w 1"
+  start = "gunicorn app:app --worker-class sync"
 
 [config]
   root = "src"
