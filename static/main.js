@@ -10,6 +10,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('user-uid').textContent = uid;
     });
 
+    socket.on('color_assigned', function(data) {
+        const uid = data.uid;
+        const color = data.color;
+    
+        // Display the UID and color in your UI
+        document.getElementById('user-uid').textContent = 'Your UID: ' + uid;
+        document.getElementById('user-uid').style.color = color; // Optional: color the UID text
+    });
+
     const messagesDiv = document.getElementById('messages');
     const messageInput = document.getElementById('message-input');
     const sendButton = document.getElementById('send-button');
