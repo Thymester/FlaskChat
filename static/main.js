@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('connect', () => {
         uid = socket.id;
         console.log("UID: ", uid); // Optional: Log the UID for debugging
-        document.getElementById('user-uid').textContent = 'Your UID: ' + uid;
+        document.getElementById('user-uid').textContent = uid;
     });
 
     socket.on('color_assigned', function(data) {
