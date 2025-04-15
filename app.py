@@ -33,6 +33,8 @@ def handle_connect():
     color_code = '#' + secrets.token_hex(3)
     uid = request.sid  # Use the original SID as UID
     uid_color_mapping[uid] = color_code
+    
+    # Emit the UID to the client
     emit('color_assigned', {'uid': uid, 'color': color_code})
 
 @socketio.on('new_message')
