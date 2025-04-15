@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const socket = io.connect('http://' + document.domain + ':' + location.port);
+    const socket = io.connect('https://' + document.domain + ':' + location.port);
     let uid = null;
     let userScrolled = false;
     let newMessageNotification = false;
