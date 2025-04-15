@@ -1,4 +1,3 @@
-// static/main.js
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io.connect('http://' + document.domain + ':' + location.port);
     let uid = null;
@@ -7,16 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('connect', () => {
         uid = socket.id;
-        document.getElementById('user-uid').textContent = uid;
+        console.log("UID: ", uid); // Optional: Log the UID for debugging
+        document.getElementById('user-uid').textContent = 'Your UID: ' + uid;
     });
 
     socket.on('color_assigned', function(data) {
-        const uid = data.uid;
         const color = data.color;
-    
-        // Display the UID and color in your UI
-        document.getElementById('user-uid').textContent = 'Your UID: ' + uid;
-        document.getElementById('user-uid').style.color = color; // Optional: color the UID text
+        document.getElementById('user-uid').style.color = color;  // Apply color to the UID text
     });
 
     const messagesDiv = document.getElementById('messages');
